@@ -8,6 +8,7 @@
 
 import UIKit
 import Foundation
+import Alamofire
 
 class ViewController: UIViewController ,UITableViewDelegate,UITableViewDataSource {
     
@@ -19,6 +20,14 @@ class ViewController: UIViewController ,UITableViewDelegate,UITableViewDataSourc
                       UIColor(red: 0.29, green: 0.48, blue: 0.71, alpha: 1),
                       UIColor(red: 0.18, green: 0.16, blue: 0.18, alpha: 1)
                       ]
+    
+    var urlArr = [
+                  "http://v.juhe.cn/weixin/query?key=00a45b7be43fd6e66d7a190a7eb30ee5",
+                  "http://japi.juhe.cn/calendar/day?date=2016-12-8&key=a9720f2c1b2ef8907cc7c510a915e55a",
+                  "http://apis.juhe.cn/ip/ip2addr?ip=www.juhe.cn&key=acc892c63e16cd77f3f75f21d24ad774",
+                  "http://v.juhe.cn/toutiao/index?type=top&key=%202450c9c901ab95e8cab6e5dcb6c1f089",
+                  "http://v.juhe.cn/toutiao/index?type=top&key= 2450c9c901ab95e8cab6e5dcb6c9"
+    ]
     
     //获取屏幕大小
     let height:CGFloat = UIScreen.main.bounds.size.height;
@@ -58,10 +67,25 @@ class ViewController: UIViewController ,UITableViewDelegate,UITableViewDataSourc
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
-        let cell = tableView.dequeueReusableCell(withIdentifier: "cellIdentifier", for: indexPath as IndexPath)
+        let cell: UITableViewCell = UITableViewCell(style: UITableViewCellStyle.subtitle, reuseIdentifier: "cell")
         cell.textLabel!.text = items[indexPath.row]
         cell.backgroundColor = itemsColor[indexPath.row]
         cell.textLabel!.textColor = UIColor.white
+        cell.detailTextLabel?.text = "加载中..."
+        cell.detailTextLabel?.textColor = UIColor.white
+        
+        let url:URLConvertible = urlArr[indexPath.row]
+        
+        Alamofire.request(url, method: .get).responseJSON {
+            response in
+            if( response.result.value != nil  ){
+                let JSON = response.result.value
+                print("JSON: \(JSON)")
+                cell.detailTextLabel?.text = "加载完成!!"
+            }else{
+                cell.detailTextLabel?.text = "加载失败"
+            }
+        }
         
         return cell
     }
